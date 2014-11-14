@@ -1,0 +1,128 @@
+#!/usr/bin/php -q
+<?php
+
+
+$workDir = $_SERVER['PWD'];
+
+define('DS', DIRECTORY_SEPARATOR);
+
+$sizes = array(
+    array('type' => 'ios', 'n' => 'Default.png', 'w' => 320, 'h' => 480),
+    array('type' => 'ios', 'n' => 'Default@2x.png', 'w' => 640, 'h' => 960),
+    array('type' => 'ios', 'n' => 'Default@2x~ipad.png', 'w' => 2048, 'h' => 1496),
+    array('type' => 'ios', 'n' => 'Default~ipad.png', 'w' => 768, 'h' => 1004),
+    array('type' => 'ios', 'n' => 'Default-Landscape.png', 'w' => 1024, 'h' => 768),
+    array('type' => 'ios', 'n' => 'Default-Landscape@2x.png', 'w' => 2048, 'h' => 1536),
+    array('type' => 'ios', 'n' => 'Default-568h@2x.png', 'w' => 640, 'h' => 1136),
+    array('type' => 'ios', 'n' => 'Default-Portrait.png', 'w' => 768, 'h' => 1024),
+    array('type' => 'ios', 'n' => 'Default768x1024@2x.png', 'w' => 1536, 'h' => 2048),
+    array('type' => 'ios', 'n' => 'Default-Landscape~ipad.png', 'w' => 1024, 'h' => 748),
+    array('type' => 'ios', 'n' => 'Default-Portrait@2x~ipad.png', 'w' => 1536, 'h' => 2048),
+    array('type' => 'ios', 'n' => 'Default~@2x~ipad.png', 'w' => 1536, 'h' => 2008),
+    array('type' => 'ios', 'n' => 'icon-40.png', 'w' => 40, 'h' => 40),
+    array('type' => 'ios', 'n' => 'icon-40@2x.png', 'w' => 80, 'h' => 80),
+    array('type' => 'ios', 'n' => 'icon-50.png', 'w' => 50, 'h' => 50),
+    array('type' => 'ios', 'n' => 'icon-50@2x.png', 'w' => 100, 'h' => 100),
+    array('type' => 'ios', 'n' => 'icon-60.png', 'w' => 60, 'h' => 60),
+    array('type' => 'ios', 'n' => 'icon-60@2x.png', 'w' => 120, 'h' => 120),
+    array('type' => 'ios', 'n' => 'icon-60.png', 'w' => 60, 'h' => 60),
+    array('type' => 'ios', 'n' => 'icon-60@2x.png', 'w' => 120, 'h' => 120),
+    
+    array('type' => 'android', 'n' => 'screen-hdpi-landscape.png', 'w' => 800, 'h' => 480),
+    array('type' => 'android', 'n' => 'screen-hdpi-portrait.png', 'w' => 480, 'h' => 800),
+    array('type' => 'android', 'n' => 'screen-ldpi-landscape.png', 'w' => 320, 'h' => 200),
+    array('type' => 'android', 'n' => 'screen-ldpi-portrait.png', 'w' => 200, 'h' => 320),
+    array('type' => 'android', 'n' => 'screen-mdpi-landscape.png', 'w' => 480, 'h' => 320),
+    array('type' => 'android', 'n' => 'screen-mdpi-portrait.png', 'w' => 320, 'h' => 480),
+    array('type' => 'android', 'n' => 'screen-xhdpi-landscape.png', 'w' => 1280, 'h' => 720),
+    array('type' => 'android', 'n' => 'screen-xhdpi-portrait.png', 'w' => 720, 'h' => 1280),
+    array('type' => 'android', 'n' => 'icon-36-ldpi.png', 'w' => 36, 'h' => 36, 'trancparent' => true),
+    array('type' => 'android', 'n' => 'icon-48-mdpi.png', 'w' => 48, 'h' => 48, 'trancparent' => true),
+    array('type' => 'android', 'n' => 'icon-72-hdpi.png', 'w' => 72, 'h' => 72, 'trancparent' => true),
+    array('type' => 'android', 'n' => 'icon-96-xhdpi.png', 'w' => 96, 'h' => 96, 'trancparent' => true),
+    array('type' => 'android', 'n' => 'icon-144-xxhdpi.png', 'w' => 144, 'h' => 144, 'trancparent' => true),
+);
+
+ini_set("memory_limit", "900M");
+
+
+if (!isset($argv['1'])) {
+    echo "no input file" . PHP_EOL;
+    exit;
+}
+
+
+
+$platform = 'any';
+
+if (isset($argv['2']) && in_array($argv['2'], array('ios','android'))) {
+    
+    $platform = $argv['2'];
+}
+
+$targetDir = $workDir.DS.'icons-'.$platform;
+
+
+if (!is_dir($targetDir)) {
+    mkdir($targetDir);
+}
+
+
+$src = $argv['1'];
+
+list($width_orig, $height_orig) = getimagesize( $workDir.DS.$src);
+
+
+foreach ($sizes as $imageSize) {
+
+    
+    if($platform=='any' || $platform==$imageSize['type']){
+    
+        $width = $imageSize['w'];
+
+         $ratio_orig = $width_orig / $height_orig;
+         $height = $width / $ratio_orig;
+         $images_orig = imagecreatefrompng($src);
+         $photoX = imagesx($images_orig);
+         $photoY = imagesy($images_orig);
+         $images_fin = imagecreatetruecolor($imageSize['w'], $imageSize['h']);
+
+         if (key_exists('trancparent', $imageSize)) {
+             imagealphablending($images_fin, false);
+             imagesavealpha($images_fin, true);
+         } else {
+             $white = imagecolorallocate($images_fin, 255, 255, 255);
+             imagefill($images_fin, 0, 0, $white);
+         }
+
+
+         if ($imageSize['w'] > $imageSize['h']) {
+             $size = $imageSize['h'];
+             $xoffset = ($imageSize['w'] - $size) / 2;
+             $yoffset = 0;
+         } else {
+             $size = $imageSize['w'];
+             $yoffset = ($imageSize['h'] - $size) / 2;
+             $xoffset = 0;
+         }
+
+         $newwidth = $size;
+         $newheight = $size;
+
+         if (isset($imageSize['crop'])) {
+             $photoX = $photoX - $imageSize['crop'];
+             $photoY = $photoY - $imageSize['crop'];
+         }
+
+         imagecopyresized($images_fin, $images_orig, $xoffset, $yoffset, 0, 0, $newwidth, $newheight, $photoX, $photoY);
+
+         imagepng($images_fin, $targetDir.DS. $imageSize['n']);
+         imagedestroy($images_orig);
+         imagedestroy($images_fin);
+         
+         echo str_pad($imageSize['type'],8).' '.str_pad($imageSize['w'].'x'.$imageSize['h'], 10).' '.$imageSize['n'].PHP_EOL;
+         
+    }
+}
+
+
