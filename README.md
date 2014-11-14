@@ -1,7 +1,6 @@
-mi
-==
-
 Simple terminal icons and splash maker for ios and android
+
+==
 
 Instalation 
 
