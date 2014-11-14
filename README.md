@@ -8,5 +8,5 @@ git clone git@github.com:avtehnik/mi.git && cd mi && sudo cp  mi /usr/bin/mi && 
 
 Usage 
 
-mi image.png [ios, android]
+mi source.png [ios, android]
 
